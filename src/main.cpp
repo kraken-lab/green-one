@@ -19,7 +19,7 @@ void setup()
 void loop()
 {
   // READ DATA
-  Serial.print("DHT12, \t");
+  Serial.print("DHT22, \t");
   int chk = DHT.read22(DHT22_PIN);
 
   switch (chk)
