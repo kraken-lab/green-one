@@ -1,10 +1,48 @@
+#include "main.h"
 #include <Arduino.h>
-
+#include <SoftwareSerial.h>
 #include <dht.h>
+#include "commands.h"
+
+#define DHT22_PIN 5
+#define SERIAL_SPEED 9600
 
 dht DHT;
 
-#define DHT22_PIN 5
+// Rx and Tx pins
+const int _serialRx = 2;
+const int _serialTx = 3;
+
+SoftwareSerial esp = SoftwareSerial(_serialRx, _serialTx);
+
+String prepareAnswer(String command){
+  if (command==CMD_TEMP)
+  {
+    return addDelimiter(String(DHT.temperature));
+  } else if (command == CMD_HUM)
+  {
+    return addDelimiter(String(DHT.humidity));
+  } else if (command == CMD_SOIL_1)
+  {
+    /* code */
+  }
+}
+
+String addDelimiter(String input) {
+  return input+":";
+}
+
+void checkEspCommands() {
+  if (esp.available() && esp.peek())
+  {
+    String command = esp.readString();
+
+    String answer = prepareAnswer(command);
+
+    esp.write(answer.c_str());
+
+  }
+}
 
 void setup()
 {
@@ -14,6 +52,7 @@ void setup()
   Serial.println(DHT_LIB_VERSION);
   Serial.println();
   Serial.println("Type,\tstatus,\tHumidity (%),\tTemperature (C)");
+  esp.begin(SERIAL_SPEED);
 }
 
 void loop()
@@ -43,6 +82,9 @@ void loop()
   Serial.println(DHT.temperature, 1);
 
   delay(2000);
+
+  checkEspCommands();
+  
 }
 //
 // END OF FILE
